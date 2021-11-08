@@ -71,6 +71,52 @@ def ThreeBMeteo(city):
 			lbltemperature.grid(column=4, row=rws)
 		rws += 1
 
+
+def IlMeteo(city):
+	url = "https://www.ilmeteo.it/meteo/"+ city
+	page = requests.get(url)
+
+	soup = BeautifulSoup(page.content, "html.parser")
+	table = soup.find_all("table", class_="datatable", limit=1)
+
+	#Creating columns names on GUI
+	lbl = Label(window, text="Ora", font=("Calibri bold", 15))
+	lbl.grid(column=0, row=1)
+	lbl = Label(window, text="|", font=("Calibri bold", 15))
+	lbl.grid(column=1, row=1)
+	lbl = Label(window, text="Meteo", font=("Calibri bold", 15))
+	lbl.grid(column=2, row=1)
+	lbl = Label(window, text="|", font=("Calibri bold", 15))
+	lbl.grid(column=3, row=1)
+	lbl = Label(window, text="Temp", font=("Calibri bold", 15))
+	lbl.grid(column=4, row=1)
+
+	rws = 2
+	for rows in table:
+		row = rows.find_all("tr", class_=['dark', 'light'])
+		if row:
+			for param in row:
+				time = param.find("span", class_="ora")
+				if time:
+					lbltime = Label(window, text=(time.text).strip(), font=("Calibri", 15))
+					lbltime.grid(column=0, row=rws)
+					lbl = Label(window, text="|", font=("Calibri bold", 15))
+					lbl.grid(column=1, row=rws)
+
+				weather = param.find("td", class_="col3")
+				if weather:
+					lblweather = Label(window, text=(weather.text).strip(), font=("Calibri", 15))
+					lblweather.grid(column=2, row=rws)
+					lbl = Label(window, text="|", font=("Calibri bold", 15))
+					lbl.grid(column=3, row=rws)
+
+				temperature = param.find("td", class_="col4")
+				if temperature:
+					lbltemperature = Label(window, text=(temperature.text).strip(), font=("Calibri", 15))
+					lbltemperature.grid(column=4, row=rws)
+				rws += 1
+
+
 #GUI initialization
 window = Tk()
 window.title("WeatherScrap")
@@ -80,8 +126,10 @@ lbl = Label(window, text="Città: ", font=("Calibri bold", 15))
 lbl.grid(column=0, row=0)
 e = Entry(window, font=("Calibri regular", 15))
 e.grid(column=2, row=0)
-b = Button(window, text ="OK", command = lambda: ThreeBMeteo(e.get()))
-b.grid(column=4, row=0)
+b1 = Button(window, text ="3Bmeteo", command = lambda: ThreeBMeteo(e.get()))
+b1.grid(column=4, row=0)
+b2 = Button(window, text ="IlMeteo", command = lambda: IlMeteo(e.get()))
+b2.grid(column=5, row=0)
 
 #Starting the GUI loop
 window.mainloop()
