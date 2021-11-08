@@ -32,18 +32,11 @@ def ThreeBMeteo(city):
 	for row in table:
 		#Searching the actual table row for the class containing the time value
 		#3bmeteo.com uses both of the following div class for the time value so a doulbe search is needed
-		time1 = row.find_all("div", class_="col-xs-1-4 big zoom_prv", limit=1)
-		time2 = row.find_all("div", class_="col-xs-1-4 big", limit=1)
+		time = row.find_all("div", class_=['col-xs-1-4 big zoom_prv', 'col-xs-1-4 big'], limit=1)
+
 		#Since only find_all() returns an object with a .text function, was necessary to use it instead of find()
 		#Fin_all() returns an object that needs to be looped in order to correctly print the contained text
-		for ptime in time1:
-			#The time value is added to a label showed on GUI
-			#Also a | character is added to simulate columns on GUI
-			lbltime = Label(window, text=(ptime.text).strip(), font=("Calibri", 15))
-			lbltime.grid(column=0, row=rws)
-			lbl = Label(window, text="|", font=("Calibri bold", 15))
-			lbl.grid(column=1, row=rws)
-		for ptime in time2:
+		for ptime in time:
 			#The time value is added to a label showed on GUI
 			#Also a | character is added to simulate columns on GUI
 			lbltime = Label(window, text=(ptime.text).strip(), font=("Calibri", 15))
