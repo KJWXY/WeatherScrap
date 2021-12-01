@@ -25,7 +25,7 @@ class WeatherScrap:
 		l3.grid(column=2, row=1)
 		l4 = Label(self.window, text="Temp", font=("Calibri 18 bold"))
 		l4.grid(column=4, row=1)
-		e = Entry(self.window, font=("Calibri", 15))
+		e = Entry(self.window, font=("Calibri 15"))
 		e.grid(column=2, row=0)
 		b1 = Button(self.window, text ="IlMeteo", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "IlMeteo"))
 		b1.grid(column=4, row=0)
