@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 
 
 class WeatherScrap:
-
 	# Object constructor, creates the GUI and adds the starting labels, input box and buttons.
 	def __init__(self):
 		# Main GUI window creation.
