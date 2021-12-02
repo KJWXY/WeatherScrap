@@ -16,7 +16,7 @@ class WeatherScrap:
 		# A list where all the replaceable labels must be inserted in order to prevent the overlap issue.
 		self.replaceable_labels = []
 
-		# Adding the static labels to GUI. These ones must remain the in place, so they are not added to "replaceable_labels".
+		# Adding the static labels to GUI. These ones must remain in place, so they are not added to "replaceable_labels".
 		l1 = Label(self.window, text="Città: ", font=("Calibri 18 bold"))
 		l1.grid(column=0, row=0)
 		l2 = Label(self.window, text="Ora", font=("Calibri 18 bold"))
@@ -43,8 +43,8 @@ class WeatherScrap:
 			l.destroy()
 			
 
-	# Adds a new replaceable label to GUI. If specified, another label with " | " separator character is added after the one created.
-	# This is done to simulate table rows\columns in GUI.
+	# Adds a new replaceable label to GUI. If specified, an extra label with " | " separator character is added after the one created.
+	# This is done to simulate table columns in GUI.
 	def add_label_to_gui(self, value, separator, cl, rw):
 		if separator:
 			l = Label(self.window, text=value, font=("Calibri 15"))
@@ -73,11 +73,11 @@ class WeatherScrap:
 			html_page = requests.get(url)
 
 			# Using the "BeautifulSoup" library to create a searchable object.
-			# Extracting a target part from from that object, it contains the desired forecast data..
+			# Extracting a target part from from that object, it contains the desired forecast data.
 			soup_result = BeautifulSoup(html_page.content, "html.parser")
 			table = soup_result.find_all("table", class_="datatable", limit=1)
 
-			# Index used to start position labels on GUI after the static ones previously added.
+			# Index used to start positioning labels on GUI after the static ones previously added.
 			current_gui_row = 2
 
 			# Looping on the extracted part, looking for time, weather and temperature values and adding them to GUI.
@@ -107,7 +107,7 @@ class WeatherScrap:
 			soup_result = BeautifulSoup(html_page.content, "html.parser")
 			table = soup_result.find_all("div", class_="row-table noPad")
 			
-			# Index used to start position labels on GUI after the static ones previously added.
+			# Index used to start positioning labels on GUI after the static ones previously added.
 			current_gui_row = 2
 
 			# Looping on the extracted part, looking for time, weather and temperature values and adding them to GUI.
