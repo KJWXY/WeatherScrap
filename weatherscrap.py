@@ -30,7 +30,9 @@ class WeatherScrap:
 		b1 = Button(self.window, text ="IlMeteo", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "IlMeteo"))
 		b1.grid(column=4, row=0)
 		b2 = Button(self.window, text ="3Bmeteo", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "3Bmeteo"))
-		b2.grid(column=5, row=0)
+		b2.grid(column=6, row=0)
+		b3 = Button(self.window, text ="LaMMA", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "LaMMA"))
+		b3.grid(column=8, row=0)
 
 		# Starting the GUI event loop.
 		self.window.mainloop()
@@ -123,6 +125,39 @@ class WeatherScrap:
 					self.add_label_to_gui((temperature[0].text).strip(), False, 4, current_gui_row)
 				current_gui_row += 1
 
+
+		# If "www.lamma.rete.toscana.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
+		elif source == "LaMMA":
+			# Composing the URL with the chosen city and performing HTTP request.
+			url = "http://www.lamma.rete.toscana.it/meteo/meteo-"+ city
+			html_page = requests.get(url)
+
+			# Using the "BeautifulSoup" library to create a searchable object.
+			# Extracting a target part from from that object, it contains the desired forecast data.
+			soup_result =  BeautifulSoup(html_page.content, "html.parser")
+			table = soup_result.find_all("div", class_="tab-pane active")
+			rows = table[0].find_all("div", class_=['hourlyrowsea hidden-xs', 'hourlyrow hidden-xs'])
+
+			# Index used to start positioning labels on GUI after the static ones previously added.
+			current_gui_row = 2
+
+			# Looping on the extracted part, looking for time, weather and temperature values and adding them to GUI.
+			for row in rows:
+				time_class = row.find_all("div", class_="forecast", limit=1)
+				for element in time_class:
+					time = element.find_all("b", limit=1)
+					self.add_label_to_gui((time[0].text).strip(), True, 0, current_gui_row)
+				weather_class = row.find_all("div", class_="forecast", limit=1)
+				for element in weather_class:
+					weather_position = 0
+					for weather in element:
+						if(weather_position == 4):
+							self.add_label_to_gui((weather.text).strip(), True, 2, current_gui_row)
+						weather_position += 1
+				temperature_class = row.find_all("div", class_="treal", limit=1)
+				for temperature in temperature_class:
+					self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+				current_gui_row += 1
 
 # Creating the object, then the constructor will start the main loop.
 WeatherScrap()
