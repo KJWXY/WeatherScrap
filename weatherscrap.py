@@ -19,12 +19,6 @@ class WeatherScrap:
 		# Adding the static labels to GUI. These ones must remain in place, so they are not added to "replaceable_labels".
 		l1 = Label(self.window, text="Città: ", font=("Calibri 18 bold"))
 		l1.grid(column=0, row=0)
-		l2 = Label(self.window, text="Ora", font=("Calibri 18 bold"))
-		l2.grid(column=0, row=1)
-		l3 = Label(self.window, text="Meteo", font=("Calibri 18 bold"))
-		l3.grid(column=2, row=1)
-		l4 = Label(self.window, text="Temp", font=("Calibri 18 bold"))
-		l4.grid(column=4, row=1)
 		e = Entry(self.window, font=("Calibri 15"))
 		e.grid(column=2, row=0)
 		b1 = Button(self.window, text ="IlMeteo", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "IlMeteo"))
@@ -33,6 +27,14 @@ class WeatherScrap:
 		b2.grid(column=6, row=0)
 		b3 = Button(self.window, text ="LaMMA", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "LaMMA"))
 		b3.grid(column=8, row=0)
+		b4 = Button(self.window, text ="Meteoam", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "Meteoam"))
+		b4.grid(column=9, row=0)
+		l2 = Label(self.window, text="Ora", font=("Calibri 18 bold"))
+		l2.grid(column=0, row=1)
+		l3 = Label(self.window, text="Meteo", font=("Calibri 18 bold"))
+		l3.grid(column=2, row=1)
+		l4 = Label(self.window, text="Temp", font=("Calibri 18 bold"))
+		l4.grid(column=4, row=1)
 
 		# Starting the GUI event loop.
 		self.window.mainloop()
@@ -158,6 +160,39 @@ class WeatherScrap:
 				for temperature in temperature_class:
 					self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
 				current_gui_row += 1
+
+
+		# If "www.meteoam.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
+		elif source == "Meteoam":
+			# Composing the URL with the chosen city and performing HTTP request.
+			url = "http://www.meteoam.it/ta/previsione/290/"+ city
+			html_page = requests.get(url)
+
+			# Using the "BeautifulSoup" library to create a searchable object.
+			# Extracting a target part from from that object, it contains the desired forecast data.
+			soup_result =  BeautifulSoup(html_page.content, "html.parser")
+			table = soup_result.find_all("tbody")
+			rows = table[0].find_all("tr")
+
+			# Index used to start positioning labels on GUI after the static ones previously added.
+			current_gui_row = 2
+
+			# Looping on the extracted part, looking for time, weather and temperature values and adding them to GUI.
+			for row in rows:
+				time_class = row.find_all("th")
+				for time in time_class:
+					self.add_label_to_gui((time.text).strip(), True, 0, current_gui_row)
+				weather_class = row.find_all("img")
+				for weather in weather_class:
+					self.add_label_to_gui((weather.get('title')).strip(), True, 2, current_gui_row)
+				temperature_class = row.find_all("td", limit=3)
+				temperature_position = 0
+				for temperature in temperature_class:
+					if(temperature_position == 2):
+						self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+					temperature_position += 1
+				current_gui_row += 1
+
 
 # Creating the object, then the constructor will start the main loop.
 WeatherScrap()
