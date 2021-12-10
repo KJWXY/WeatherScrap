@@ -17,24 +17,16 @@ class WeatherScrap:
 		self.replaceable_labels = []
 
 		# Adding the static labels to GUI. These ones must remain in place, so they are not added to "replaceable_labels".
-		l1 = Label(self.window, text="Città: ", font=("Calibri 18 bold"))
-		l1.grid(column=0, row=0)
-		e = Entry(self.window, font=("Calibri 15"))
-		e.grid(column=2, row=0)
-		b1 = Button(self.window, text ="IlMeteo", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "IlMeteo"))
-		b1.grid(column=4, row=0)
-		b2 = Button(self.window, text ="3Bmeteo", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "3Bmeteo"))
-		b2.grid(column=6, row=0)
-		b3 = Button(self.window, text ="LaMMA", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "LaMMA"))
-		b3.grid(column=8, row=0)
-		b4 = Button(self.window, text ="MeteoGiu", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "MeteoGiu"))
-		b4.grid(column=9, row=0)
-		l2 = Label(self.window, text="Ora", font=("Calibri 18 bold"))
-		l2.grid(column=0, row=1)
-		l3 = Label(self.window, text="Meteo", font=("Calibri 18 bold"))
-		l3.grid(column=2, row=1)
-		l4 = Label(self.window, text="Temp", font=("Calibri 18 bold"))
-		l4.grid(column=4, row=1)
+		self.add_label_to_gui("Città: ", "Calibri 18 bold", True, False, 0, 0)
+		self.e = Entry(self.window, font=("Calibri 15"))
+		self.e.grid(column=2, row=0)
+		self.add_button_to_gui("IlMeteo", 4, 0)
+		self.add_button_to_gui("3Bmeteo", 5, 0)
+		self.add_button_to_gui("LaMMA", 6, 0)
+		self.add_button_to_gui("MeteoGiu", 7, 0)
+		self.add_label_to_gui("Ora", "Calibri 18 bold", True, False, 0, 1)
+		self.add_label_to_gui("Meteo", "Calibri 18 bold", True, False, 2, 1)
+		self.add_label_to_gui("Temp", "Calibri 18 bold", True, False, 4, 1)
 
 		# Starting the GUI event loop.
 		self.window.mainloop()
@@ -49,18 +41,21 @@ class WeatherScrap:
 
 	# Adds a new replaceable label to GUI. If specified, an extra label with " | " separator character is added after the one created.
 	# This is done to simulate table columns in GUI.
-	def add_label_to_gui(self, value, separator, cl, rw):
-		if separator:
-			l = Label(self.window, text=value, font=("Calibri 15"))
-			l.grid(column=cl, row=rw)
+	def add_label_to_gui(self, value, tfont, static, separator, cl, rw):
+		l = Label(self.window, text=value, font=(tfont))
+		l.grid(column=cl, row=rw)
+		if not static:
 			self.replaceable_labels.append(l)
+		if separator:
 			s = Label(self.window, text="|", font=("Calibri 15 bold"))
 			s.grid(column=cl+1, row=rw)
 			self.replaceable_labels.append(s)
-		else:
-			l = Label(self.window, text=value, font=("Calibri 15"))
-			l.grid(column=cl, row=rw)
-			self.replaceable_labels.append(l)
+
+
+	# Adds a new button to GUI. The created button starts the "get_forecast" method with button's name as argument.
+	def add_button_to_gui(self, value, cl, rw):
+		b = Button(self.window, text=value, font="Calibri 12 bold", command=lambda:self.get_forecast(self.e.get(), value))
+		b.grid(column=cl, row=rw)
 
 
 	# Performs webscrapping from forecast websites for a given city.
@@ -91,13 +86,13 @@ class WeatherScrap:
 				for element in row_types:
 					time = element.find("span", class_="ora")
 					if time:
-						self.add_label_to_gui((time.text).strip(), True, 0, current_gui_row)
+						self.add_label_to_gui((time.text).strip(), "Calibri 15", False, True, 0, current_gui_row)
 					weather = element.find("td", class_="col3")
 					if weather:
-						self.add_label_to_gui((weather.text).strip(), True, 2, current_gui_row)
+						self.add_label_to_gui((weather.text).strip(), "Calibri 15", False, True, 2, current_gui_row)
 					temperature = element.find("td", class_="col4")
 					if temperature:
-						self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+						self.add_label_to_gui((temperature.text).strip(), "Calibri 15", False, False, 4, current_gui_row)
 					current_gui_row += 1
 
 		# If "www.3bmeteo.com" is selected, performs a custom scrap of it's specific HTML\CSS structure.
@@ -118,15 +113,14 @@ class WeatherScrap:
 			for row in table:
 				time = row.find_all("div", class_=['col-xs-1-4 big zoom_prv', 'col-xs-1-4 big'], limit=1)
 				if time:
-					self.add_label_to_gui((time[0].text).strip(), True, 0, current_gui_row)
+					self.add_label_to_gui((time[0].text).strip(), "Calibri 15", False, True, 0, current_gui_row)
 				weather = row.find_all("div", class_="col-xs-2-4", limit=1)
 				if weather:
-					self.add_label_to_gui((weather[0].text).strip(), True, 2, current_gui_row)
+					self.add_label_to_gui((weather[0].text).strip(), "Calibri 15", False, True, 2, current_gui_row)
 				temperature = row.find_all("span", class_="switchcelsius switch-te active", limit=1)
 				if temperature:
-					self.add_label_to_gui((temperature[0].text).strip(), False, 4, current_gui_row)
+					self.add_label_to_gui((temperature[0].text).strip(), "Calibri 15", False, False, 4, current_gui_row)
 				current_gui_row += 1
-
 
 		# If "www.lamma.rete.toscana.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
 		elif source == "LaMMA":
@@ -148,19 +142,18 @@ class WeatherScrap:
 				time_class = row.find_all("div", class_="forecast", limit=1)
 				for element in time_class:
 					time = element.find_all("b", limit=1)
-					self.add_label_to_gui((time[0].text).strip(), True, 0, current_gui_row)
+					self.add_label_to_gui((time[0].text).strip(), "Calibri 15", False, True, 0, current_gui_row)
 				weather_class = row.find_all("div", class_="forecast", limit=1)
 				for element in weather_class:
 					weather_position = 0
 					for weather in element:
 						if(weather_position == 4):
-							self.add_label_to_gui((weather.text).strip(), True, 2, current_gui_row)
+							self.add_label_to_gui((weather.text).strip(), "Calibri 15", False, True, 2, current_gui_row)
 						weather_position += 1
 				temperature_class = row.find_all("div", class_="treal", limit=1)
 				for temperature in temperature_class:
-					self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+					self.add_label_to_gui((temperature.text).strip(), "Calibri 15", False, False, 4, current_gui_row)
 				current_gui_row += 1
-
 
 		# If "www.meteogiuliacci.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
 		elif source == "MeteoGiu":
@@ -180,17 +173,16 @@ class WeatherScrap:
 			for row in table:
 				time_class = row.find_all("td", class_="tab-comuni1")
 				for time in time_class:
-					self.add_label_to_gui((time.text).strip(), True, 0, current_gui_row)
+					self.add_label_to_gui((time.text).strip(), "Calibri 15", False, True, 0, current_gui_row)
 				weather_class = row.find_all("script", limit=1)
 				for element in weather_class:
 					element_clean = (element.text).replace('document.write("', '')
 					weather = element_clean.replace('");', '')
-					self.add_label_to_gui(weather.strip(), True, 2, current_gui_row)
+					self.add_label_to_gui(weather.strip(), "Calibri 15", False, True, 2, current_gui_row)
 				temperature_class = row.find_all("td", class_="tab-comuni3")
 				for temperature in temperature_class:
-					self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+					self.add_label_to_gui((temperature.text).strip(), "Calibri 15", False, False, 4, current_gui_row)
 				current_gui_row += 1
-
 
 		# If "www.meteoam.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
 		# This website uses also pairs a number to each city name to be added in their URLs.
@@ -214,15 +206,15 @@ class WeatherScrap:
 			for row in rows:
 				time_class = row.find_all("th")
 				for time in time_class:
-					self.add_label_to_gui((time.text).strip(), True, 0, current_gui_row)
+					self.add_label_to_gui((time.text).strip(), "Calibri 15", False, True, 0, current_gui_row)
 				weather_class = row.find_all("img")
 				for weather in weather_class:
-					self.add_label_to_gui((weather.get('title')).strip(), True, 2, current_gui_row)
+					self.add_label_to_gui((weather.get('title')).strip(), "Calibri 15", False, True, 2, current_gui_row)
 				temperature_class = row.find_all("td", limit=3)
 				temperature_position = 0
 				for temperature in temperature_class:
 					if(temperature_position == 2):
-						self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+						self.add_label_to_gui((temperature.text).strip(), "Calibri 15", False, False, 4, current_gui_row)
 					temperature_position += 1
 				current_gui_row += 1
 
