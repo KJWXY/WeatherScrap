@@ -27,7 +27,7 @@ class WeatherScrap:
 		b2.grid(column=6, row=0)
 		b3 = Button(self.window, text ="LaMMA", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "LaMMA"))
 		b3.grid(column=8, row=0)
-		b4 = Button(self.window, text ="Meteoam", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "Meteoam"))
+		b4 = Button(self.window, text ="MeteoGiu", font="Calibri 12 bold", command = lambda: self.get_forecast(e.get(), "MeteoGiu"))
 		b4.grid(column=9, row=0)
 		l2 = Label(self.window, text="Ora", font=("Calibri 18 bold"))
 		l2.grid(column=0, row=1)
@@ -64,7 +64,7 @@ class WeatherScrap:
 
 
 	# Performs webscrapping from forecast websites for a given city.
-	# Two forecast website are currently supported: "www.ilmeteo.it" (source="IlMeteo") and "www.3bmeteo.com" (source="3Bmeteo").
+	# Currently supported websites: "www.ilmeteo.it", "www.3bmeteo.com", "www.lamma.rete.toscana.it" (Tuscany only) and "www.meteogiuliacci.it".
 	def get_forecast(self, city, source):
 
 		# Cleaning the GUI from old labels to avoid the overlap issue.
@@ -162,10 +162,43 @@ class WeatherScrap:
 				current_gui_row += 1
 
 
+		# If "www.meteogiuliacci.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
+		elif source == "MeteoGiu":
+			# Composing the URL with the chosen city and performing HTTP request.
+			url = "https://www.meteogiuliacci.it/meteo/" + city
+			html_page = requests.get(url)
+
+			# Using the "BeautifulSoup" library to create a searchable object.
+			# Extracting a target part from from that object, it contains the desired forecast data.
+			soup_result = BeautifulSoup(html_page.content, "html.parser")
+			table = soup_result.find_all("tr", class_=['rigagrigia', 'rigabianca'])
+
+			# Index used to start positioning labels on GUI after the static ones previously added.
+			current_gui_row = 2
+
+			# Looping on the extracted part, looking for time, weather and temperature values and adding them to GUI.
+			for row in table:
+				time_class = row.find_all("td", class_="tab-comuni1")
+				for time in time_class:
+					self.add_label_to_gui((time.text).strip(), True, 0, current_gui_row)
+				weather_class = row.find_all("script", limit=1)
+				for element in weather_class:
+					element_clean = (element.text).replace('document.write("', '')
+					weather = element_clean.replace('");', '')
+					self.add_label_to_gui(weather.strip(), True, 2, current_gui_row)
+				temperature_class = row.find_all("td", class_="tab-comuni3")
+				for temperature in temperature_class:
+					self.add_label_to_gui((temperature.text).strip(), False, 4, current_gui_row)
+				current_gui_row += 1
+
+
 		# If "www.meteoam.it" is selected, performs a custom scrap of it's specific HTML\CSS structure.
+		# This website uses also pairs a number to each city name to be added in their URLs.
+		# This represents an issue and so the returned forecast will always be from their default city "Torino".
+		# For this reason this website is not included in GUI.
 		elif source == "Meteoam":
 			# Composing the URL with the chosen city and performing HTTP request.
-			url = "http://www.meteoam.it/ta/previsione/290/"+ city
+			url = "http://www.meteoam.it/ta/previsione/"+ city
 			html_page = requests.get(url)
 
 			# Using the "BeautifulSoup" library to create a searchable object.
