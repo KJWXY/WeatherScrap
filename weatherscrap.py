@@ -1,17 +1,21 @@
 # The "requests" library is needed to perform an HTTP request to a website.
 # The "tkinter" library is needed to create the GUI.
 # The "BeautifulSoup" library is needed to parse the HTML page resulting from the HTTP request.
+# The ImageTK, Image and BytesIO libraries are needed to get the GUI icon from a given URL.
 import requests
 from tkinter import *
 from bs4 import BeautifulSoup
+from PIL import ImageTk, Image
+from io import BytesIO
 
 
-class WeatherScrap:
+class WeatherScrapper:
 	# Object constructor, creates the GUI and adds the starting labels, input box and buttons.
 	def __init__(self):
-		# Main GUI window creation.
+		# Main GUI window creation and.
 		self.window = Tk()
-		self.window.title("WeatherScrap")
+		self.window.title("WeatherScrapper")
+		self.set_gui_icon('https://www.vhv.rs/dpng/d/459-4597100_windy-weather-clipart-at-getdrawings-windy-weather-icon.png')
 
 		# A list where all the replaceable labels must be inserted in order to prevent the overlap issue.
 		self.replaceable_labels = []
@@ -30,6 +34,14 @@ class WeatherScrap:
 
 		# Starting the GUI event loop.
 		self.window.mainloop()
+
+
+	# Sets the GUI icon using an image from a given URL.
+	def set_gui_icon(self, icon_url):
+		response = requests.get(icon_url)
+		icon_raw = response.content
+		icon = ImageTk.PhotoImage(Image.open(BytesIO(icon_raw)))
+		self.window.iconphoto(False, icon)
 
 
 	# Destroys all the replaceable labels previously added to GUI and that were inserted in the "replaceable_labels" list.
@@ -220,4 +232,4 @@ class WeatherScrap:
 
 
 # Creating the object, then the constructor will start the main loop.
-WeatherScrap()
+WeatherScrapper()
