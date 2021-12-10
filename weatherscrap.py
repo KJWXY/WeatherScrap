@@ -73,7 +73,6 @@ class WeatherScrapper:
 	# Performs webscrapping from forecast websites for a given city.
 	# Currently supported websites: "www.ilmeteo.it", "www.3bmeteo.com", "www.lamma.rete.toscana.it" (Tuscany only) and "www.meteogiuliacci.it".
 	def get_forecast(self, city, source):
-
 		# Cleaning the GUI from old labels to avoid the overlap issue.
 		self.clean_gui()
 
